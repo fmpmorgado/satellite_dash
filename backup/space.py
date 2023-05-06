@@ -1,16 +1,33 @@
+"""
 from dash import Dash, html, dcc
-from dash.dependencies import Input, Output
-from . import earth
+from dash.dependencies import Input, Output, State
+from . import earth_map
 from . import satellite
 import plotly.graph_objs as go
+import random
+#Callbacks:
 
 def render(app = Dash()):
+
+    @app.callback(Output('space_graph', 'figure'),
+                Input('interval1', 'n_intervals'),
+                State('space_graph', 'figure'))
+
+    def update_fig( n , figure):        
+        data_satellite = satellite.trace(x = random.randint(6000, 10000), y = random.randint(6000, 10000), z = random.randint(6000, 10000))
+        for data in figure['data']:
+            if data["name"] == satellite:
+                data["x"] = data_satellite["x"]
+                data["y"] = data_satellite["y"]
+                data["z"] = data_satellite["z"]
+
+        return figure
 
     #Define colors
     color_background = 'black'
 
     #Retrieve data
-    data_earth = earth.trace()
+    data_earth = earth_map.trace()
     data_satellite = satellite.trace()
 
     #Create the layout to render the images
@@ -53,6 +70,7 @@ def render(app = Dash()):
 
     #Plot the data
     fig = go.Figure(data=data_earth+data_satellite, layout=layout)
+    fig['layout']['uirevision'] = 'Do not change'
 
     return html.Div(
         children = [
@@ -61,3 +79,4 @@ def render(app = Dash()):
         ]
     )
 
+"""

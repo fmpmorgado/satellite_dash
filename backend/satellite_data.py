@@ -1,12 +1,11 @@
 import requests
 import sgp4
-from sgp4.api import Satrec, WGS72, jday
+from sgp4.api import Satrec, SatrecArray, WGS72, jday
 from sgp4 import exporter
 import pymap3d as pm
 from datetime import datetime
 
 #http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE=SpaceX-E&FORMAT=CSV
-
 
 """
 TLE sources to request from celestrak
@@ -34,36 +33,78 @@ TLE sources to request from celestrak
 SOURCE = ["CPF", "GLONASS-RE", "GPS-A", "GPS-E", "Intelsat-11P", "Intelsat-11P", "Intelsat-E", "Iridium-E", "ISS-E", "ISS-TLE", "METEOSAT-SV", "OneWeb-E", "Orbcomm-TLE", "Planet-E", "SES-11P", "SpaceX-E", "SpaceX-SV", "Telesat-E", "Transporter-SV"]
 FORMAT = "TLE"
 
-for source in SOURCE[0:1]:
+def request_data_from_source():
 
-    url = f"http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE={source}&FORMAT={FORMAT}"
+    names= []
+    tle_line_1 = []
+    tle_line_2 = []
+
+    for source in SOURCE[:1]:
+
+        url = f"http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE={source}&FORMAT={FORMAT}"
+        res = requests.get(url)
+        if res.ok:
+            tle = res.text.replace('\r','').split('\n')
+
+        #Collect TLE data
+        names += tle[0::3]
+        tle_line_1 += tle[1::3]
+        tle_line_2 += tle[1::3]
+
+    #Default Earth model is WGS72
+    #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
+    #  the industry still uses WGS72
+    satellite_list  = [Satrec.twoline2rv(s, t, WGS72) for s,t in zip(tle_line_1, tle_line_2)]
+
+    return satellite_list
+
+
+def request_data_from_id(sat_id):
+
+    names= ""
+    tle_line_1 = ""
+    tle_line_2 = ""
+
+    url = f"http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?CATNR={sat_id}&FORMAT={FORMAT}"
     res = requests.get(url)
     if res.ok:
-        tle = res.text.replace('\r','').split('\n')[:3]
+        tle = res.text.replace('\r','').split('\n')
 
-        name = tle[0]
-        s = tle[1]
-        t = tle[2]
+    
+    names += tle[0]
+    tle_line_1 += tle[1]
+    tle_line_2 += tle[2]
 
-        #s = "1 36411U 10008A   23125.19296515  .00000140  00000+0  00000+0 0  9998"
-        #t = "2 36411   0.2538  95.3778 0001281 279.9331 133.7381  1.00141063 48228"
+    #Default Earth model is WGS72
+    #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
+    #  the industry still uses WGS72
+    
+    return names.rstrip(), tle_line_1, tle_line_2
 
-        #Default Earth model is WGS72
-        #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
-        #  the industry still uses WGS72
-        satellite = Satrec.twoline2rv(s, t, WGS72)
-        date = datetime.now()
+def initialize_satellite_from_tle(tle_line_1, tle_line_2):
+    return Satrec.twoline2rv(tle_line_1, tle_line_2, WGS72)
 
-        #jd: Julian Date and fr: fraction
-        jd, fr = jday(date.year, date.month, date.day, date.hour, date.minute, date.second)
+def compute_position(current_time, satellite):
+    date = current_time
 
-        #Compute position (km) and velocity(km/s) in TEME reference frame
-        _, r, v = satellite.sgp4(jd, fr)
+    #Compute position (km) and velocity(km/s) in TEME reference frame
+    e, r, v = compute_ECI_position(date, satellite)
 
-        lat,lon,alt = pm.eci2geodetic(r[0]*1000,r[1]*1000,r[2]*1000, t = date)
+    #Compute x,y,z positions
+    x,y,z = pm.eci2ecef(r[0]*1000,r[1]*1000,r[2]*1000, time = date)
 
+    #Compute latitude, longitude and altitude
+    lat,lon,alt = pm.eci2geodetic(r[0]*1000,r[1]*1000,r[2]*1000, t = date)
 
-        print(lat,lon,alt)
-        
-        #Prints the data using Dataframe
-        #print(exporter.export_omm(satellite, 'Test' ))
+    return lat, lon, alt
+
+def compute_ECI_position(current_time, satellite):
+    date = current_time
+
+    #jd: Julian Date and fr: fraction
+    jd, fr = jday(date.year, date.month, date.day, date.hour, date.minute, date.second)
+
+    #Compute position (km) and velocity(km/s) in TEME reference frame
+    e, r, v = satellite.sgp4(jd, fr)
+
+    return e,r,v

@@ -1,6 +1,5 @@
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
-from src.components import earth
 from src.components.layout import create_layout
 
 # Dash setup
