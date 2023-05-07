@@ -18,8 +18,6 @@ def render(app: Dash()):
 
     df = pd.DataFrame(d)
 
-   # df.drop(columns=['CENTER_NAME', 'REF_FRAME', 'TIME_SYSTEM', 'MEAN_ELEMENT_THEORY' ])
-
     table = dash_table.DataTable(id = 'table_sat',
         data=df.to_dict('records'),
         columns=[{'id': c, 'name': c} for c in df.columns],

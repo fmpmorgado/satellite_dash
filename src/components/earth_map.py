@@ -17,7 +17,7 @@ def render(app = Dash()):
     def update_earth_map(data, n, clickdata, figure):        
         trace = []
         if not data: return figure
-        
+
         #Loop the data in memory that was selected in the table
         for sat in data:
             tle1 = sat["tle1"]
