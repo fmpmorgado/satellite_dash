@@ -46,6 +46,7 @@ def render(app: Dash()):
         row_selectable="multi",
         sort_action="native",
         sort_mode="multi",
+        filter_action='native',
         page_size=20,  
     )
 

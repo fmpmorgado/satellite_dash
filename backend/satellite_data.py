@@ -4,6 +4,7 @@ from sgp4.api import Satrec, SatrecArray, WGS72, jday
 from sgp4 import exporter
 import pymap3d as pm
 from datetime import datetime
+import numpy as np
 
 #http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE=SpaceX-E&FORMAT=CSV
 
@@ -84,20 +85,6 @@ def request_data_from_id(sat_id):
 def initialize_satellite_from_tle(tle_line_1, tle_line_2):
     return Satrec.twoline2rv(tle_line_1, tle_line_2, WGS72)
 
-def compute_position(current_time, satellite):
-    date = current_time
-
-    #Compute position (km) and velocity(km/s) in TEME reference frame
-    e, r, v = compute_ECI_position(date, satellite)
-
-    #Compute x,y,z positions
-    x,y,z = pm.eci2ecef(r[0]*1000,r[1]*1000,r[2]*1000, time = date)
-
-    #Compute latitude, longitude and altitude
-    lat,lon,alt = pm.eci2geodetic(r[0]*1000,r[1]*1000,r[2]*1000, t = date)
-
-    return lat, lon, alt
-
 def compute_ECI_position(current_time, satellite):
     date = current_time
 
@@ -108,3 +95,44 @@ def compute_ECI_position(current_time, satellite):
     e, r, v = satellite.sgp4(jd, fr)
 
     return e,r,v
+
+def compute_position(current_time, satellite):
+    date = current_time
+
+    e, r, v = compute_ECI_position(date, satellite)
+
+    #Compute x,y,z positions
+    x,y,z = pm.eci2ecef(r[0]*1000,r[1]*1000,r[2]*1000, time = date)
+
+    #Compute latitude, longitude and altitude
+    lat,lon,alt = pm.eci2geodetic(r[0]*1000,r[1]*1000,r[2]*1000, t = date)
+
+    return lat, lon, alt
+
+
+def compute_ECI_position_array(time_array, satellite):
+
+    jd = ()
+    fr = ()
+
+    for date in time_array:
+        a, b = jday(date.year, date.month, date.day, date.hour, date.minute, date.second)
+        jd += (a,)
+        fr += (b,)
+
+    jd = np.array(jd)
+    fr = np.array(fr)
+
+    #Compute position (km) and velocity(km/s) in TEME reference frame
+    e, r, v = satellite.sgp4_array(jd, fr)
+
+    return e,r,v
+
+def compute_position_array(time_array, satellite):
+    
+    e, r, v = compute_ECI_position_array(time_array, satellite)
+
+    #Compute latitude, longitude and altitude
+    lat,lon,alt = pm.eci2geodetic(r[:,0]*1000,r[:,1]*1000,r[:,2]*1000, t = time_array)
+
+    return lat, lon, alt    
