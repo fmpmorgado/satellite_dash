@@ -8,18 +8,23 @@ database = client.tracker
 collection = database.satellite
 
 async def fetch_one_satellite(id):
-	document = await collection.find_one({"id":id})
+	document = await collection.find_one({"_id": id})
 	return document
 
 async def create_satellite(satellite):
 	document = satellite
-	print(document)
 	result = await collection.insert_one(document)
 	return document
 
 async def fetch_all_satellite():
 	satellite = []
-	cursor = collection.find({})
-	async for document in cursor:
+	async for document in collection.find():
 		satellite.append(Satellite(**document))
 	return satellite
+
+async def delete_satellite(id: str):
+	result = await collection.find_one({"_id":id})
+	if result:
+		await collection.delete_one({"_id": id})
+		return True
+	return False

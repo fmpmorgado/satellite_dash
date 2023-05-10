@@ -55,10 +55,9 @@ def request_data_from_source():
     #Default Earth model is WGS72
     #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
     #  the industry still uses WGS72
-    satellite_list  = [Satrec.twoline2rv(s, t, WGS72) for s,t in zip(tle_line_1, tle_line_2)]
+    # satellite_list  = [Satrec.twoline2rv(s, t, WGS72) for s,t in zip(tle_line_1, tle_line_2)]
 
-    return satellite_list
-
+    return names, tle_line_1, tle_line_2
 
 def request_data_from_id(sat_id):
 

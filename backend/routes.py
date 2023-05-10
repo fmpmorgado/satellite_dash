@@ -1,7 +1,9 @@
-from fastapi import HTTPException, WebSocket, APIRouter
+from fastapi import HTTPException, APIRouter
+from fastapi.encoders import jsonable_encoder
 from . import model
 import asyncio
-from backend.database import fetch_one_satellite, create_satellite, fetch_all_satellite
+from backend.database import fetch_one_satellite, create_satellite, fetch_all_satellite, delete_satellite
+from typing import List
 
 route = APIRouter()
 
@@ -15,22 +17,29 @@ def read_main():
     }
 
 @route.get("/satellites/{id}", response_model = model.Satellite)
-async def read_satellite_by_id(id):
+async def read_satellite_by_id(id: str):
 	response = await fetch_one_satellite(id)
 	if response:
 		return response
-	raise HTTPException(404, "There is no TODO item with this title")
+	raise HTTPException(404, "There is no item with this ID")
 
 
-@route.get("/satellites")
-async def get_todo():
+@route.get("/satellites", response_model = List[model.Satellite])
+async def get_satellites():
 	response = await fetch_all_satellite()
 	return response
 
-
 @route.post("/satellites", response_model = model.Satellite)
-async def post_satellite(satellite: model.Satellite):
-	response = await create_satellite(satellite.dict())
+async def post_satellite(satellite: model.Satellite ):
+	satellite = jsonable_encoder(satellite)
+	response = await create_satellite(satellite)
 	if response:
 		return response
 	raise HTTPException(400, "Bad request")
+
+@route.delete('/satellites/{id}')
+async def delete_satellite_by_id(id: str):
+	response = await delete_satellite(id)
+	if response:
+		return "Deleted the satellite"
+	raise HTTPException(404, "There is no satellite item with this title")

@@ -1,18 +1,18 @@
 from dash import Dash, Input, Output, State, dash_table, html
 import pandas as pd
-from backend.satellite_data import request_data_from_source, request_data_from_id
+from backend.satellite_data import request_data_from_source, request_data_from_id, initialize_satellite_from_tle
 from sgp4 import exporter
 from collections import defaultdict
 
 def render(app: Dash()):
     #Alternatively, import from Mongo
-    list_satellites = request_data_from_source()
-
+    names, tle_lines_1, tle_lines_2= request_data_from_source()
+    list_satellites = [initialize_satellite_from_tle(tle1, tle2) for tle1, tle2 in zip(tle_lines_1, tle_lines_2)]
     #Preprocess data to store
     d = defaultdict(list)
 
-    for sat in list_satellites:
-        data = exporter.export_omm(sat,'ISS (ZARYA)')
+    for sat, name in zip(list_satellites, names):
+        data = exporter.export_omm(sat, name)
         for key,value in data.items():
             d[key]+=[value]
 
