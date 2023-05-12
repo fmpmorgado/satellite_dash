@@ -16,6 +16,11 @@ async def create_satellite(satellite):
 	result = await collection.insert_one(document)
 	return document
 
+async def update_satellite(id, satellite):
+	document = satellite
+	result = await collection.update_one({"_id": id}, {"$set": document})
+	return document
+
 async def fetch_all_satellite():
 	satellite = []
 	async for document in collection.find():

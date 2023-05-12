@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
-from bson import ObjectId
-from typing import Optional, List
-        
+from typing import Optional
+from datetime import datetime
+
 class Satellite(BaseModel):
     id: str = Field(default_factory=str, alias="_id")
     name: str = Field(...)
@@ -17,3 +17,6 @@ class UpdateSatellite(BaseModel):
     tle1: Optional[str]
     tle2: Optional[str]
     epoch_tle: Optional[str]
+
+def string_to_date(date: str):
+    return datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')

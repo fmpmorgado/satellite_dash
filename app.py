@@ -1,19 +1,18 @@
-import uvicorn
-from fastapi import FastAPI
-from fastapi.middleware.wsgi import WSGIMiddleware
-from fastapi.middleware.cors import CORSMiddleware
-from backend import routes, scheduler
-
-from dash import Dash
 import dash_bootstrap_components as dbc
-from src.components.layout import create_layout
 import flask
-import os
+import uvicorn
+from dash import Dash
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.wsgi import WSGIMiddleware
+
+from backend import routes, scheduler
+from src.components.layout import create_layout
 
 app = FastAPI(lifespan = scheduler.init_scheduler)
 
 server = flask.Flask(__name__)
-server.secret_key = os.environ.get('secret_key', 'secret')
+#server.secret_key = os.environ.get('secret_key', 'secret')
 
 # Dash setup
 dash_app = Dash(__name__, server = server, requests_pathname_prefix="/dash/", external_stylesheets=[dbc.themes.PULSE])

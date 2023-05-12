@@ -1,13 +1,12 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from backend.routes import post_satellite, fetch_all_satellite
 from backend.satellite_data import request_data_from_source, initialize_satellite_from_tle
 from sgp4.exporter import export_omm
-from backend.model import Satellite
+from backend.model import string_to_date
 import sys
 import requests
-import json
+from datetime import datetime
 
 def print_output():
     sys.stdout.flush()
@@ -25,8 +24,16 @@ def update_database():
                                  "tle2": tle2,
                                  "epoch_tle": fields["EPOCH"]}
 
+        response = requests.get(f"http://127.0.0.1:8000/satellites/{sat_entry['_id']}")
+        if response.status_code == 200: #Found it 
+            sat_data = response.json()
+            
+            if string_to_date(sat_data["epoch_tle"]) > string_to_date(sat_entry["epoch_tle"]):
+                requests.put(f"http://127.0.0.1:8000/satellites{sat_data['_id']}", json=sat_data)
+
         #TODO change url for a dynamic url
-        response = requests.post('http://127.0.0.1:8000/satellites', json=sat_entry)
+        else:
+            response = requests.post('http://127.0.0.1:8000/satellites', json=sat_entry)
         
     pass
 
@@ -38,13 +45,17 @@ async def init_scheduler(app: FastAPI):
 
     print("Initializing application")
     
-    #Updates the database after initializing the app
-    #update_database()
-
     schedule = BackgroundScheduler()
     schedule.add_job(print_output, 'cron', second='*/1')
-    schedule.add_job(update_database, 'cron', hour = '*/12')
-    schedule.start()
 
+    #Runs the job every 12 hours
+    schedule.add_job(update_database, 'cron', hour = '*/12')
+    
+    #Runs the job immediatly
+    schedule.add_job(update_database)
+
+    schedule.start()
+    
     yield
+    
     schedule.shutdown()

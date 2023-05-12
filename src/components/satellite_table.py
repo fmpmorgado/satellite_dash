@@ -3,10 +3,14 @@ import pandas as pd
 from backend.satellite_data import request_data_from_source, request_data_from_id, initialize_satellite_from_tle
 from sgp4 import exporter
 from collections import defaultdict
+import requests
 
 def render(app: Dash()):
-    #Alternatively, import from Mongo
+
+    #Import data from Source, as MongoDB connection is still closed:
+    #TODO
     names, tle_lines_1, tle_lines_2= request_data_from_source()
+
     list_satellites = [initialize_satellite_from_tle(tle1, tle2) for tle1, tle2 in zip(tle_lines_1, tle_lines_2)]
     #Preprocess data to store
     d = defaultdict(list)
@@ -58,10 +62,15 @@ def render(app: Dash()):
                   prevent_initial_call=True)
     def save_data_in_memory(rows,data):
         filtered = []
-        for r in rows:
-            name, tle1, tle2 = request_data_from_id(data[r]["NORAD_CAT_ID"])
-            filtered += [{'name': name, 'tle1':tle1, 'tle2':tle2}]
+        for r in rows:            
+            response = requests.get(f"http://127.0.0.1:8000/satellites/{data[r]['NORAD_CAT_ID']}")
+            if response.status_code == 200:
+                response = response.json()
+                name = response['name']
+                tle1 = response['tle1']
+                tle2 = response['tle2']
 
+                filtered += [{'name': name, 'tle1':tle1, 'tle2':tle2}]
         return filtered
 
     return html.Div(

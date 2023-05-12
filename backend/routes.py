@@ -1,20 +1,16 @@
 from fastapi import HTTPException, APIRouter
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import RedirectResponse
 from . import model
 import asyncio
-from backend.database import fetch_one_satellite, create_satellite, fetch_all_satellite, delete_satellite
+from backend.database import fetch_one_satellite, create_satellite, fetch_all_satellite, delete_satellite, update_satellite
 from typing import List
 
 route = APIRouter()
 
 @route.get("/")
-def read_main():
-    return {
-        "routes": [
-            {"method": "GET", "path": "/", "summary": "Landing"},
-            {"method": "GET", "path": "/dash", "summary": "Sub-mounted Dash application"},
-        ]
-    }
+def redirect_main():
+	return RedirectResponse("/dash")
 
 @route.get("/satellites/{id}", response_model = model.Satellite)
 async def read_satellite_by_id(id: str):
@@ -33,6 +29,14 @@ async def get_satellites():
 async def post_satellite(satellite: model.Satellite ):
 	satellite = jsonable_encoder(satellite)
 	response = await create_satellite(satellite)
+	if response:
+		return response
+	raise HTTPException(400, "Bad request")
+
+@route.put("/satellites/{id}]", response_model = model.UpdateSatellite)
+async def put_satellite(id: str, satellite: model.UpdateSatellite ):
+	satellite = jsonable_encoder(satellite)
+	response = await update_satellite(id, satellite)
 	if response:
 		return response
 	raise HTTPException(400, "Bad request")

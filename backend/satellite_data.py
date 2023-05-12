@@ -1,9 +1,6 @@
 import requests
-import sgp4
-from sgp4.api import Satrec, SatrecArray, WGS72, jday
-from sgp4 import exporter
+from sgp4.api import Satrec, WGS72, jday
 import pymap3d as pm
-from datetime import datetime
 import numpy as np
 
 #http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE=SpaceX-E&FORMAT=CSV
@@ -40,7 +37,7 @@ def request_data_from_source():
     tle_line_1 = []
     tle_line_2 = []
 
-    for source in SOURCE[:1]:
+    for source in SOURCE:
 
         url = f"http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE={source}&FORMAT={FORMAT}"
         res = requests.get(url)
@@ -50,7 +47,7 @@ def request_data_from_source():
         #Collect TLE data
         names += tle[0::3]
         tle_line_1 += tle[1::3]
-        tle_line_2 += tle[1::3]
+        tle_line_2 += tle[2::3]
 
     #Default Earth model is WGS72
     #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
