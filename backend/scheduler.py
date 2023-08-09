@@ -12,6 +12,8 @@ def print_output():
     sys.stdout.flush()
 
 def update_database():
+
+    #TODO change url for a dynamic url
     names, tle_lines_1, tle_lines_2 = request_data_from_source()
 
     for name, tle1, tle2 in zip(names, tle_lines_1, tle_lines_2):
@@ -28,14 +30,15 @@ def update_database():
         if response.status_code == 200: #Found it 
             sat_data = response.json()
             
+            #Updates satelite entry if a more recent TLE was found
             if string_to_date(sat_data["epoch_tle"]) > string_to_date(sat_entry["epoch_tle"]):
                 requests.put(f"http://127.0.0.1:8000/satellites{sat_data['_id']}", json=sat_data)
 
-        #TODO change url for a dynamic url
+        #Introduces a satellite entry into the database
         else:
             response = requests.post('http://127.0.0.1:8000/satellites', json=sat_entry)
-        
-    pass
+
+    return    
 
 @asynccontextmanager
 async def init_scheduler(app: FastAPI):
