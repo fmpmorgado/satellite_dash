@@ -10,9 +10,7 @@ from backend import routes, scheduler
 from src.components.layout import create_layout
 
 app = FastAPI(lifespan = scheduler.init_scheduler)
-
 server = flask.Flask(__name__)
-#server.secret_key = os.environ.get('secret_key', 'secret')
 
 # Dash setup
 dash_app = Dash(__name__, server = server, requests_pathname_prefix="/dash/", external_stylesheets=[dbc.themes.PULSE])

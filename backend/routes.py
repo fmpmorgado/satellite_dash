@@ -19,7 +19,6 @@ async def read_satellite_by_id(id: str):
 		return response
 	raise HTTPException(404, "There is no item with this ID")
 
-
 @route.get("/satellites", response_model = List[model.Satellite])
 async def get_satellites():
 	response = await fetch_all_satellite()

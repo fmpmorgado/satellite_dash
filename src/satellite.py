@@ -25,12 +25,9 @@ def position_trace(lat = 0, lon = 0, satellite = None, name = "skip"):
                             mode="markers",
                             marker= {'size': size_marker, 'symbol':"circle", 'color':color_marker, 'opacity': opacity},
                             customdata=[[fields["OBJECT_NAME"], line1, line2]],
-                           # hovertemplate=
-                           #   "TLE1:%{customdata[0]}",
                             name = fields["OBJECT_NAME"],
                             showlegend=False,
                             )
-    data = [trace]
 
     return trace
 
@@ -52,7 +49,6 @@ def orbit_trace(lat, lon):
     #Define properties
     size_line = 2
     color_line = "red"
-    opacity = 0.7
 
     # Trace satellite
     trace = go.Scattermapbox(lat=lat,

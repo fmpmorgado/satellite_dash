@@ -47,7 +47,7 @@ def render(app = Dash()):
             trace += [satellite.orbit_trace(lat = lat, lon = lon)]
 
 
-        #Check if last trace is of an orbit
+        #Check if last trace corresponds to an orbit
         elif figure["data"][-1]["name"] == "orbit":
             trace+=figure["data"][-1]
         
@@ -66,5 +66,3 @@ def render(app = Dash()):
             dcc.Graph(id = "earth_map", figure=fig)
         ]
     )
-
-    return fig

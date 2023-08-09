@@ -3,8 +3,6 @@ from sgp4.api import Satrec, WGS72, jday
 import pymap3d as pm
 import numpy as np
 
-#http://celestrak.org/NORAD/elements/supplemental/sup-gp.php?SOURCE=SpaceX-E&FORMAT=CSV
-
 """
 TLE sources to request from celestrak
 
@@ -49,11 +47,6 @@ def request_data_from_source():
         tle_line_1 += tle[1::3]
         tle_line_2 += tle[2::3]
 
-    #Default Earth model is WGS72
-    #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
-    #  the industry still uses WGS72
-    # satellite_list  = [Satrec.twoline2rv(s, t, WGS72) for s,t in zip(tle_line_1, tle_line_2)]
-
     return names, tle_line_1, tle_line_2
 
 def request_data_from_id(sat_id):
@@ -67,18 +60,18 @@ def request_data_from_id(sat_id):
     if res.ok:
         tle = res.text.replace('\r','').split('\n')
 
-    
     names += tle[0]
     tle_line_1 += tle[1]
     tle_line_2 += tle[2]
-
-    #Default Earth model is WGS72
-    #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
-    #  the industry still uses WGS72
     
     return names.rstrip(), tle_line_1, tle_line_2
 
 def initialize_satellite_from_tle(tle_line_1, tle_line_2):
+    
+    #Default Earth model is WGS72
+    #  Although WHS would be more accurate, according to https://pypi.org/project/sgp4/,
+    #  the industry still uses WGS72
+
     return Satrec.twoline2rv(tle_line_1, tle_line_2, WGS72)
 
 def compute_ECI_position(current_time, satellite):

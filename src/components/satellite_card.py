@@ -10,7 +10,6 @@ def create_card_header(name, tle_line_1, tle_line_2):
     field = exporter.export_omm(f,name)
     return [name, " | ", f"NORAD-ID: {field['NORAD_CAT_ID']}", " | ", f"INT-ID: {field['OBJECT_ID']}"]
 
-
 def create_card_body_left(name, tle_line_1, tle_line_2):
     f = initialize_satellite_from_tle(tle_line_1, tle_line_2)
     lat, lon, alt = compute_position(datetime.now(), f)
