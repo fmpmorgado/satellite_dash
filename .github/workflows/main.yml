@@ -2,9 +2,13 @@ name: Continuous Integration
 on: push
 
 jobs:
-  test:
-    name: Testing the yaml file
-    runs_on: ubuntu-latest
-    steps: 
-      -name: Testing
-      run: echo "Hello"
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
