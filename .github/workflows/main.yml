@@ -1,1 +1,10 @@
-Name: Continuous Integration
+name: Continuous Integration
+on: push
+
+jobs:
+  test:
+    name: Testing the yaml file
+    runs_on: ubuntu-latest
+    steps: 
+      -name: Testing
+      run: echo "Hello"
