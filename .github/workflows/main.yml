@@ -3,7 +3,6 @@ on: push
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -14,7 +13,11 @@ jobs:
 
     - name: Check containers
       run: docker ps
-    
+      
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
     - name: Run Unittest
       run: | 
         docker exec satellite_dash_app_1 pytest tests/satellite_test.py
