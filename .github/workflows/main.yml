@@ -2,7 +2,7 @@ name: Continuous Integration
 on: push
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,15 +14,21 @@ jobs:
     - name: Check containers
       run: docker ps
       
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
     - name: Run Unittest
       run: | 
         docker exec satellite_dash_app_1 pytest tests/satellite_test.py
         docker exec satellite_dash_app_1 pytest tests/mongo_test.py
 
+  deploy:
+    runs_on: ubuntu-latest
+    needs: build_and_test
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build the stack
+      run: docker-compose up -d --build
+    
     - name: Login to docker
       uses: docker/login-action@v3
       with:
@@ -30,7 +36,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Tag image
-      run: docker tag satellite_dash_app fmpmorgado/satellite_dash-app:latest
+      run: docker tag satellite_dash_app ${{ secrets.DOCKER_USERNAME }}/satellite_dash-app:latest
 
     - name: Push image
-      run: docker push fmpmorgado/satellite_dash-app:latest
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/satellite_dash-app:latest
