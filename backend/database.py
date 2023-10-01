@@ -1,8 +1,9 @@
 import motor.motor_asyncio
 from backend.model import Satellite
+import os
 
 # Client object to access database
-client = motor.motor_asyncio.AsyncIOMotorClient('mongodb://mongodb:27017')
+client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv("MONGO_URL", ""))
 
 database = client.tracker
 collection = database.satellite

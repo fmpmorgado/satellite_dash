@@ -12,6 +12,10 @@ route = APIRouter()
 def redirect_main():
 	return RedirectResponse("/dash")
 
+@route.get("/test_route")
+def test_route():
+	return {"message": "Hello World"}
+
 @route.get("/satellites/{id}", response_model = model.Satellite)
 async def read_satellite_by_id(id: str):
 	response = await fetch_one_satellite(id)

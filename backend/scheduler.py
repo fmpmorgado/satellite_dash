@@ -49,7 +49,7 @@ async def init_scheduler(app: FastAPI):
     print("Initializing application")
     
     schedule = BackgroundScheduler()
-    schedule.add_job(print_output, 'cron', second='*/1')
+    schedule.add_job(print_output, 'cron', second='*/5')
 
     #Runs the job every 12 hours
     schedule.add_job(update_database, 'cron', hour = '*/12')
