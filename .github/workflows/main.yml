@@ -14,5 +14,5 @@ jobs:
 
     - name: UnitTest with pytest
       run: |
-        docker-compose exec -T satellite_dash_app-1 pytest tests/mongo_test.py
-        docker-compose exec -T satellite_dash_app-1 pytest tests/satellite_test.py
+        docker-compose exec -T satellite_dash-app-1 pytest tests/mongo_test.py
+        docker-compose exec -T satellite_dash-app-1 pytest tests/satellite_test.py
