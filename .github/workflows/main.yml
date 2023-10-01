@@ -13,7 +13,7 @@ jobs:
       run: docker-compose up -d --build
 
     - name: UnitTest with pytest
-      run: docker ps
       run: |
+        docker ps
         docker-compose exec -T satellite_dash_app_1 pytest tests/mongo_test.py
         docker-compose exec -T satellite_dash_app_1 pytest tests/satellite_test.py
