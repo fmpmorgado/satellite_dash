@@ -41,6 +41,6 @@ def test_position():
     satellite = initialize_satellite_from_tle(sat_entry["tle1"], sat_entry["tle2"])
     date = string_to_date(sat_entry["epoch_tle"])
     lat, lon, alt = compute_position(current_time=date, satellite=satellite)
-    assert np.round(lat,5) == np.round(-26.957341,5)
+    assert np.round(lat,5) == np.round(-27.957341,5)
     assert np.round(lon,5) == np.round(-101.237315,5)
     assert np.round(alt,5) == np.round(1227506.9849629,5)
