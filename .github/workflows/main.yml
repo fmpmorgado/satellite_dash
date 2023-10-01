@@ -16,5 +16,5 @@ jobs:
       run: docker ps
     
     - name: Run Unittest
-      run: docker run satellite_dash_app_1 pytest tests/satellite_test.py
+      run: docker exec satellite_dash_app_1 pytest tests/satellite_test.py
       #run: docker-compose exec -T satellite_dash_app_1 pytest tests/satellite_test.py
