@@ -20,7 +20,7 @@ jobs:
         docker exec satellite_dash_app_1 pytest tests/mongo_test.py
 
   deploy:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: build_and_test
 
     steps:
