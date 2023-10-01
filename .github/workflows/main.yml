@@ -27,7 +27,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Tag image
-      run: docker tag satellite_dash-app fmpmorgado/satellite_dash-app:latest
+      run: docker tag satellite_dash_app fmpmorgado/satellite_dash-app:latest
 
     - name: Push image
       run: docker push fmpmorgado/satellite_dash-app:latest
