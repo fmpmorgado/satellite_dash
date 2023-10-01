@@ -8,5 +8,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Build the stack
-      run: docker-compose up -d
+      run: docker-compose up -d --build
+
+    - name: UnitTest with pytest
+      run: |
+        docker-compose exec -T satellite_dash_app-1 pytest tests/mongo_test.py
+        docker-compose exec -T satellite_dash_app-1 pytest tests/satellite_test.py
